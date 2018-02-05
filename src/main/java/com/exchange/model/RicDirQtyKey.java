@@ -1,9 +1,9 @@
 package com.exchange.model;
 
 /**
- * Direction, RIC, qty
- * @author HP
- *
+ * Used as a key to retrieve open Orders by RIC, direction and quantity.
+ * 
+ * @author Elliot G
  */
 public class RicDirQtyKey {
 
@@ -66,9 +66,6 @@ public class RicDirQtyKey {
 
 	@Override
 	public String toString() {
-		return "OrderKey [direction=" + direction + ", ric=" + ric + ", qty=" + qty + "]";
+		return "RicDirQtyKey [direction=" + direction + ", ric=" + ric + ", qty=" + qty + "]";
 	}
-
-	
-	
 }

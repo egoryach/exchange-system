@@ -26,9 +26,11 @@ import com.exchange.model.RicUserKey;
 import com.exchange.service.OrderMatchingService;
 
 /**
+ * Implementation of OrderMatchingService.
  * 
+ * Contains in-memory representations of open and executed Orders.
  * 
- * @author Elliot Goryachkovsky
+ * @author Elliot G
  */
 @Service
 public class OrderMatchingServiceImpl implements OrderMatchingService {
@@ -82,9 +84,7 @@ public class OrderMatchingServiceImpl implements OrderMatchingService {
 		RicDirKey key = new RicDirKey(order.getRic(), order.getDirection());
 		openOrdersByRicDir.putIfAbsent(key, ConcurrentHashMap.newKeySet());
 		openOrdersByRicDir.get(key).add(order);
-
 	}
-
 
 	private void processExecution(Order order, Order matchingOrder) {
 
@@ -136,13 +136,10 @@ public class OrderMatchingServiceImpl implements OrderMatchingService {
 			logger.info("...match not found");
 			return orderOptional;
 		}
-		//filter out same user
-		//matchingOrders = matchingOrders.stream().filter(o -> !o.getUser().equalsIgnoreCase(order.getUser())).collect(Collectors.toCollection(ConcurrentHashMap::newKeySet));
-				
+
 		// is BUY or SELL
 		// if order buy, make sure collection sell prices <= order price
-		// if sell order, make sure collecion buy prices >= order price
-		
+		// if sell order, make sure collecion buy prices >= order price		
 		if (order.getDirection() == Direction.BUY) {
 			orderOptional = matchingOrders.stream()
 					.filter(o -> !o.getUser().equalsIgnoreCase(order.getUser()))
@@ -192,7 +189,7 @@ public class OrderMatchingServiceImpl implements OrderMatchingService {
 	}
 
 	@Override
-	public Optional<Integer> getExecutiedQty(RicUserKey key) {
+	public Optional<Integer> getExecutedQty(RicUserKey key) {
 		//for given RIC, User
 		Set<OrderExecuted> set = execOrdersByRicUser.get(key);
 		
@@ -219,5 +216,4 @@ public class OrderMatchingServiceImpl implements OrderMatchingService {
 	public Map<RicQtyKey, Set<OrderExecuted>> getExecutedOrders() {		 
 		return Collections.unmodifiableMap(execOrdersByRicQty);
 	}
-
 }

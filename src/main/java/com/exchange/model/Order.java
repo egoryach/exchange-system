@@ -4,30 +4,23 @@
 package com.exchange.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * ric,direction,qty,price,user,orderTime
- * @author Elliot Goryachkovsky
+ * Represents an Order to be matched.
+ * 
+ * @author Elliot G
  */
 public class Order {
 
-	Direction direction;
-	String ric;
-	Integer quantity;
-	BigDecimal price;
-	String user;
-	LocalDateTime orderTime;
-	
-	/**
-	 * 
-	 */
-	public Order() {
-	}
+	private final Direction direction;
+	private final String ric;
+	private final Integer quantity;
+	private final BigDecimal price;
+	private final String user;
+	private final LocalDateTime orderTime;
 	
 	
-
 	public Order(Direction direction, String ric, Integer quantity, BigDecimal price, String user,
 			LocalDateTime orderTime) {
 		super();
@@ -45,48 +38,24 @@ public class Order {
 		return direction;
 	}
 
-	public void setDirection(Direction direction) {
-		this.direction = direction;
-	}
-
 	public String getRic() {
 		return ric;
-	}
-
-	public void setRic(String ric) {
-		this.ric = ric;
 	}
 
 	public Integer getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
-	}
-
 	public BigDecimal getPrice() {
 		return price;
-	}
-
-	public void setPrice(BigDecimal price) {
-		this.price = price;
 	}
 
 	public String getUser() {
 		return user;
 	}
 
-	public void setUser(String user) {
-		this.user = user;
-	}
-
 	public LocalDateTime getOrderTime() {
 		return orderTime;
-	}
-
-	public void setOrderTime(LocalDateTime orderTime) {
-		this.orderTime = orderTime;
 	}
 
 	@Override
@@ -141,13 +110,9 @@ public class Order {
 		return true;
 	}
 
-
-
 	@Override
 	public String toString() {
 		return "Order [direction=" + direction + ", ric=" + ric + ", quantity=" + quantity + ", price=" + price
 				+ ", user=" + user + ", orderTime=" + orderTime + "]";
-	}
-
-	
+	}	
 }

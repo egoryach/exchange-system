@@ -2,6 +2,11 @@ package com.exchange.model;
 
 
 
+/**
+ * Used as a key to retrieve open Orders by RIC and direction.
+ * 
+ * @author Elliot G
+ */
 public class RicDirKey {
 
 	private final String ric;
@@ -21,7 +26,6 @@ public class RicDirKey {
 	public Direction getDirection() {
 		return direction;
 	}
-
 
 	@Override
 	public int hashCode() {
@@ -50,7 +54,9 @@ public class RicDirKey {
 			return false;
 		return true;
 	}
-	
-	
 
+	@Override
+	public String toString() {
+		return "RicDirKey [ric=" + ric + ", direction=" + direction + "]";
+	}		
 }

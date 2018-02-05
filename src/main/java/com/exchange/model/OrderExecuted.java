@@ -5,14 +5,14 @@ package com.exchange.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author HP
- *
+ * Represents two Orders that have been matched.  It contains both BUY and SELL matched orders.
+ * 
+ * @author Elliot G
  */
 public class OrderExecuted {
 
@@ -39,11 +39,9 @@ public class OrderExecuted {
 		users = Collections.unmodifiableSet(s);
 	}
 
-	
 	public Set<String> getUsers() {
 		return users;
 	}
-
 
 	public BigDecimal getExecPrice() {
 		return execPrice;
@@ -116,8 +114,5 @@ public class OrderExecuted {
 		} else if (!sell.equals(other.sell))
 			return false;
 		return true;
-	}
-	
-
-
+	}	
 }

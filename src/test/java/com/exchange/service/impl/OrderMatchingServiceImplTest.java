@@ -4,7 +4,6 @@ import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -20,20 +19,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.exchange.model.Direction;
 import com.exchange.model.Order;
 import com.exchange.model.OrderExecuted;
-import com.exchange.model.RicDirQtyKey;
 import com.exchange.model.RicDirKey;
+import com.exchange.model.RicDirQtyKey;
 import com.exchange.model.RicQtyKey;
 import com.exchange.model.RicUserKey;
 import com.exchange.service.OrderMatchingService;
 
 
+/**
+ * Tests for methods of OrderMatchingService.
+ *  
+ * @author Elliot G
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class OrderMatchingServiceImplTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(OrderMatchingServiceImplTest.class.getName());
@@ -50,31 +57,20 @@ public class OrderMatchingServiceImplTest {
 	}
 
 	@Before
-	public void setUp() throws Exception {
-		generateOrders();
-		
-		
-	}
-
-	private void generateOrders() {
-		
-		// IBM.N 159.03
-		// GOOGL.OQ 1,119.20
-		// AMZN.OQ  1,429.95
+	public void setUp() throws Exception {		
 	}
 
 	@After
 	public void tearDown() throws Exception {
+
 	}
 
 	@Test
 	public void testAddOrder() {
-
 		init(Direction.BUY);
 		
 		Map<RicDirQtyKey, Set<Order>> map = matchingService.getOpenOrders();
 		Assert.assertNotNull(map);
-
 	}
 	
 	/**
@@ -83,9 +79,10 @@ public class OrderMatchingServiceImplTest {
 	 */
 	@Test
 	public void testAddSellOrderWithSamePriceDiffTime() {
-
+		//existing Orders
 		initWithSamePriceDiffTime(Direction.BUY);
 		
+		//new Order
 		matchingService.addOrder( new Order(Direction.SELL,"GOOGL.OQ",100,new BigDecimal("1119.20"),"User2",LocalDateTime.now()) );
 		
 		Map<RicDirQtyKey, Set<Order>> openOrders = matchingService.getOpenOrders();
@@ -93,7 +90,6 @@ public class OrderMatchingServiceImplTest {
 		
 		Map<RicQtyKey, Set<OrderExecuted>> execOrders =  matchingService.getExecutedOrders();
 		Assert.assertTrue(execOrders.size()==1);
-
 	}
 	
 	/**
@@ -103,9 +99,9 @@ public class OrderMatchingServiceImplTest {
 	 */
 	@Test
 	public void testAddBuyOrderWithSamePriceDiffTime() {
-
+		//existing Orders
 		initWithSamePriceDiffTime(Direction.SELL);
-		
+		//new Order
 		matchingService.addOrder( new Order(Direction.BUY,"GOOGL.OQ",100,new BigDecimal("1150.20"),"User2",LocalDateTime.now()) );
 		
 		Map<RicDirQtyKey, Set<Order>> openOrders = matchingService.getOpenOrders();
@@ -123,9 +119,9 @@ public class OrderMatchingServiceImplTest {
 	 */
 	@Test
 	public void testAddBuyOrderLowerPriceThanSell() {
-
+		//existing Orders
 		initWithSamePriceDiffTime(Direction.SELL);
-		
+		//new Order
 		matchingService.addOrder( new Order(Direction.BUY,"GOOGL.OQ",100,new BigDecimal("1100.20"),"User2",LocalDateTime.now()) );
 		
 		Map<RicDirQtyKey, Set<Order>> openOrders = matchingService.getOpenOrders();
@@ -142,9 +138,9 @@ public class OrderMatchingServiceImplTest {
 	 */
 	@Test
 	public void testAddSellOrderWithSameUser() {
-
+		//existing Orders
 		initWithSamePriceDiffTime(Direction.BUY);
-		
+		//new Order
 		matchingService.addOrder( new Order(Direction.SELL,"GOOGL.OQ",100,new BigDecimal("1119.20"),"User1",LocalDateTime.now()) );
 		
 		Map<RicDirQtyKey, Set<Order>> openOrders = matchingService.getOpenOrders();
@@ -152,7 +148,6 @@ public class OrderMatchingServiceImplTest {
 		
 		Map<RicQtyKey, Set<OrderExecuted>> execOrders =  matchingService.getExecutedOrders();
 		Assert.assertTrue(execOrders.size()==0);
-
 	}
 	
 	/**
@@ -162,9 +157,9 @@ public class OrderMatchingServiceImplTest {
 	 */
 	@Test
 	public void testAddBuyOrderWithDiffPriceAndTime() {
-
+		//existing Orders
 		initWithDiffPriceAndTime(Direction.SELL);
-		
+		//new Order
 		matchingService.addOrder( new Order(Direction.BUY,"GOOGL.OQ",100,new BigDecimal("1119.20"),"User2",LocalDateTime.now()) );
 		
 		Map<RicDirQtyKey, Set<Order>> map = matchingService.getOpenOrders();
@@ -185,9 +180,9 @@ public class OrderMatchingServiceImplTest {
 	 */
 	@Test
 	public void testAddSellOrderWithDiffPriceAndTime() {
-
+		//existing Orders
 		initWithDiffPriceAndTime(Direction.BUY);
-		
+		//new Order
 		matchingService.addOrder( new Order(Direction.SELL,"GOOGL.OQ",100,new BigDecimal("1119.20"),"User2",LocalDateTime.now()) );
 		
 		Map<RicDirQtyKey, Set<Order>> map = matchingService.getOpenOrders();
@@ -202,11 +197,15 @@ public class OrderMatchingServiceImplTest {
 		Assert.assertTrue(execOrder.getBuy().getOrderTime().equals(LocalDateTime.parse("2018-02-02T12:10:30")));
 	}
 
+	/**
+	 *  Sell order against existing Buy orders.
+	 *  Should execute 2 Orders.
+	 */
 	@Test
 	public void testAddOrderWithDiffPriceAndTime2Orders() {
-
+		//existing Orders
 		initWithDiffPriceAndTime(Direction.BUY);
-		
+		//new Order
 		matchingService.addOrder( new Order(Direction.SELL,"GOOGL.OQ",100,new BigDecimal("1119.20"),"User2",LocalDateTime.now()) );
 		matchingService.addOrder( new Order(Direction.SELL,"GOOGL.OQ",100,new BigDecimal("1119.20"),"User2",LocalDateTime.now()) );
 		
@@ -220,6 +219,9 @@ public class OrderMatchingServiceImplTest {
 		Assert.assertTrue(execSet.size()==2);
 	}
 	
+	/**
+	 * Tests getOpenInterest
+	 */
 	@Test
 	public void testGetOpenInterest() {
 		initWithDiffPriceAndTime(Direction.SELL);
@@ -236,6 +238,9 @@ public class OrderMatchingServiceImplTest {
 		Assert.assertTrue(map.get(new BigDecimal("1125.20")).equals(200));
 	}
 
+	/**
+	 * Tests getAvgExecutionPrice based on two executed Orders.
+	 */
 	@Test
 	public void testGetAvgExecutionPrice() {
 		initWithDiffPriceAndTime(Direction.SELL);
@@ -253,7 +258,10 @@ public class OrderMatchingServiceImplTest {
 			fail(String.format("Avg price not computed for %s",ric));
 		
 	}
-
+	
+	/**
+	 * Tests getAvgExecutionPrice based on three BUY executed Orders.
+	 */
 	@Test
 	public void testGetAvgExecutionPrice2() {
 		
@@ -274,8 +282,11 @@ public class OrderMatchingServiceImplTest {
 			fail(String.format("Avg price not computed for %s",ric));
 	}
 	
+	/**
+	 * Tests GetExecutedQty BUY based on three BUY executed Orders.
+	 */
 	@Test
-	public void testGetExecutiedQtyBuy() {
+	public void testGetExecutedQtyBuy() {
 		
 		initWithDiffPriceAndTime(Direction.SELL);
 		
@@ -287,7 +298,7 @@ public class OrderMatchingServiceImplTest {
 		
 		String user = "User2";
 		RicUserKey key = new RicUserKey(ric, user);			
-		Optional<Integer> execQty = matchingService.getExecutiedQty(key);
+		Optional<Integer> execQty = matchingService.getExecutedQty(key);
 		if(execQty.isPresent()){
 			int qty = execQty.get();
 			logger.info("Executed quantity for {} {} is {}",ric,user,qty);
@@ -298,7 +309,7 @@ public class OrderMatchingServiceImplTest {
 
 		user = "User1";
 		key = new RicUserKey(ric, user);			
-		execQty = matchingService.getExecutiedQty(key);
+		execQty = matchingService.getExecutedQty(key);
 		if(execQty.isPresent()){
 			int qty = execQty.get();
 			logger.info("Executed quantity for {} {} is {}",ric,user,qty);
@@ -307,6 +318,9 @@ public class OrderMatchingServiceImplTest {
 			fail(String.format("Unable to get executed qty for {} {} %s",ric,user ));
 	}
 	
+	/**
+	 * Tests GetExecutedQty based on three executed Orders.
+	 */
 	@Test
 	public void testGetExecutiedQtySell() {
 		
@@ -320,7 +334,7 @@ public class OrderMatchingServiceImplTest {
 		String ric = "GOOGL.OQ";
 		String user = "User2";
 		RicUserKey key = new RicUserKey(ric, user);			
-		Optional<Integer> execQty = matchingService.getExecutiedQty(key);
+		Optional<Integer> execQty = matchingService.getExecutedQty(key);
 		if(execQty.isPresent()){
 			int qty = execQty.get();
 			logger.info("Executed quantity for {} {} is {}",ric,user,qty);
@@ -330,7 +344,7 @@ public class OrderMatchingServiceImplTest {
 
 		user = "User1";
 		key = new RicUserKey(ric, user);			
-		execQty = matchingService.getExecutiedQty(key);
+		execQty = matchingService.getExecutedQty(key);
 		if(execQty.isPresent()){
 			int qty = execQty.get();
 			logger.info("Executed quantity for {} {} is {}",ric,user,qty);
@@ -340,12 +354,6 @@ public class OrderMatchingServiceImplTest {
 		
 	}
 	
-	//should pick latest timestamp, 1 remaining
-	private void initWithDiffPrices(Direction dir) {
-		matchingService.addOrder( new Order(dir,"GOOGL.OQ",100,new BigDecimal("1119.20"),"User1",LocalDateTime.parse("2018-02-02T10:15:30")) );
-		matchingService.addOrder( new Order(dir,"GOOGL.OQ",100,new BigDecimal("1125.20"),"User1",LocalDateTime.parse("2018-02-02T12:10:30")) );		
-	}
-
 	//should pick latest timestamp, 1 remaining
 	private void initWithSamePriceDiffTime(Direction dir) {
 		matchingService.addOrder( new Order(dir,"GOOGL.OQ",100,new BigDecimal("1119.20"),"User1",LocalDateTime.parse("2018-02-02T10:15:30")) );
@@ -361,12 +369,7 @@ public class OrderMatchingServiceImplTest {
 		matchingService.addOrder( new Order(dir,"GOOGL.OQ",100,new BigDecimal("1125.20"),"User1",LocalDateTime.parse("2018-02-02T12:10:30")) );		
 	}
 	
-	//should pick proper ric, 1 remaining
-	private void initWithDiffRicCodes(Direction dir) {
-		matchingService.addOrder( new Order(dir,"IBM.N",100,new BigDecimal("159.03"),"User1",LocalDateTime.parse("2018-02-02T10:15:30")) );
-		matchingService.addOrder( new Order(dir,"GOOGL.OQ",100,new BigDecimal("1119.20"),"User1",LocalDateTime.parse("2018-02-02T10:15:30")) );		
-	}
-	
+	//generate sample Orders
 	private void init(Direction dir) {
 		matchingService.addOrder( new Order(dir,"IBM.N",100,new BigDecimal("159.03"),"User1",LocalDateTime.parse("2018-02-02T10:15:30")) );
 		matchingService.addOrder( new Order(dir,"GOOGL.OQ",100,new BigDecimal("1119.20"),"User1",LocalDateTime.parse("2018-02-02T10:15:30")) );

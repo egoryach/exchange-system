@@ -1,5 +1,10 @@
 package com.exchange.model;
 
+/**
+ * Used as a key to retrieve executed Orders by RIC and quantity
+ * 
+ * @author Elliot G
+ */
 public class RicUserKey {
 
 	private final String ric;
@@ -17,9 +22,6 @@ public class RicUserKey {
 		return user;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -29,7 +31,7 @@ public class RicUserKey {
 		return result;
 	}
 
-	//@Override
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -50,5 +52,9 @@ public class RicUserKey {
 			return false;
 		return true;
 	}
-
+	
+	@Override
+	public String toString() {
+		return "RicUserKey [ric=" + ric + ", user=" + user + "]";
+	}
 }

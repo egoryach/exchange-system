@@ -4,10 +4,9 @@
 package com.exchange.model;
 
 /**
- * Consists of RIC and Quantity
+ * Used as a key to retrieve executed Orders by RIC and quantity
  * 
- * @author Elliot Goryachkovsky
- *
+ * @author Elliot G
  */
 public class RicQtyKey {
 
@@ -62,5 +61,8 @@ public class RicQtyKey {
 		return true;
 	}
 
-	
+	@Override
+	public String toString() {
+		return "RicQtyKey [ric=" + ric + ", qty=" + qty + "]";
+	}	
 }
